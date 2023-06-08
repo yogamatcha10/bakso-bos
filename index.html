@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+      crossorigin="anonymous"
+    />
+    <title>BAKSO BOS</title>
+  </head>
+  <body class="bg-success bg-gradient text-white">
+    <div class="container mt-5">
+      <h1 class="text-center">BAKSO BOS</h1>
+    </div>
+    <div class="container">
+      <div class="col">
+        <div class="mb-3">
+          <label for="exampleFormControlInput1" class="form-label"
+            >Nama Menu</label
+          >
+          <input
+            type="text"
+            id="nama"
+            class="form-control"
+            id="exampleFormControlInput1"
+            placeholder="Masukkan Nama Anda"
+          />
+        </div>
+        <div class="mb-3">
+          <label for="exampleFormControlInput1" class="form-label">Harga</label>
+          <input
+            type="number"
+            id="harga"
+            class="form-control"
+            id="exampleFormControlInput1"
+            placeholder="Masukkan Harga"
+          />
+        </div>
+        <div class="mb-3">
+          <label for="exampleFormControlInput1" class="form-label">Qty</label>
+          <input
+            type="number"
+            id="qty"
+            class="form-control"
+            id="exampleFormControlInput1"
+            placeholder="Masukkan Banyaknya"
+          />
+        </div>
+        <button
+          type="button"
+          id="button"
+          class="btn btn-success"
+          onclick="saveData()"
+        >
+          SIMPAN
+        </button>
+        <button type="button" class="btn btn-danger">BATAL</button>
+      </div>
+      <!-- <div class="col">
+        <img
+          src="https://images.unsplash.com/photo-1595005045935-9253f530b7bd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80"
+          alt=""
+          srcset=""
+        />
+      </div> -->
+    </div>
+    <div class="container mt-3">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Nama</th>
+            <th scope="col">Harga</th>
+            <th scope="col">QTY</th>
+            <th scope="col">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="result">
+          <!-- <tr>
+            <th scope="row">1</th>
+            <td>Baso Iga</td>
+            <td>20.000</td>
+            <td>2</td>
+          </tr> -->
+        </tbody>
+      </table>
+      <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+      <script>
+        //CRUD EDIT
+        const editData = (id, nama, harga, qty) => {
+          document.getElementById("nama").value = nama;
+          document.getElementById("harga").value = harga;
+          document.getElementById("qty").value = qty;
+          document.getElementById("button").innerText = "Ubah";
+          document
+            .getElementById("button")
+            .setAttribute("onclick", `updateData(${id})`);
+        };
+
+        // UPDATE
+        const updateData = async (id) => {
+          let namaForm = document.getElementById("nama").value;
+          let hargaForm = document.getElementById("harga").value;
+          let qtyForm = document.getElementById("qty").value;
+          let text = "Yakin akan mengubah data?";
+          if (confirm(text) == true) {
+            await axios
+              .patch(
+                `https://database.politekniklp3i-tasikmalaya.ac.id/api/bakso/${id}`,
+                {
+                  nama: namaForm,
+                  harga: hargaForm,
+                  qty: qtyForm,
+                }
+              )
+              .then((response) => {
+                getData();
+                document.getElementById("nama").value = "";
+                document.getElementById("harga").value = "";
+                document.getElementById("qty").value = "";
+                console.log("Data berhasil diupdate");
+              })
+              .catch((error) => {
+                console.log(error.message);
+              });
+          }
+        };
+
+        // CRUD SAVE
+        const saveData = async () => {
+          let namaForm = document.getElementById("nama").value;
+          let hargaForm = document.getElementById("harga").value;
+          let qtyForm = document.getElementById("qty").value;
+          await axios
+            .post(
+              `https://database.politekniklp3i-tasikmalaya.ac.id/api/bakso`,
+              {
+                nama: namaForm,
+                harga: hargaForm,
+                qty: qtyForm,
+              }
+            )
+            .then((response) => {
+              getData();
+              document.getElementById("nama").value = "";
+              document.getElementById("harga").value = "";
+              document.getElementById("qty").value = "";
+              console.log("berhasil");
+            })
+            .catch((error) => {
+              console.log(error.message);
+            });
+        };
+
+        // CRUD DELETE
+        const deleteData = async (id) => {
+          let text = "Yakin akan menghapus data?";
+          if (confirm(text) == true) {
+            await axios
+              .delete(
+                `https://database.politekniklp3i-tasikmalaya.ac.id/api/bakso/${id}`
+              )
+              .then((response) => {
+                getData();
+                console.log(response);
+              })
+              .catch((error) => {
+                console.log(error.message);
+              });
+          }
+        };
+        //   GET DATA
+        const getData = async () => {
+          await axios
+            .get(`https://database.politekniklp3i-tasikmalaya.ac.id/api/bakso`)
+            .then((response) => {
+              let bucket = ``;
+              let baksos = response.data.baksos;
+              for (let i = 0; i < baksos.length; i++) {
+                bucket += `
+              <tr>
+                <td>${i + 1}</td>
+                <td>${baksos[i].nama}</td>
+                <td>${baksos[i].harga}</td>
+                <td>${baksos[i].qty}</td>
+                <td>
+                  <button type="button" class="btn btn-primary" onclick="editData('${
+                    baksos[i].id
+                  }','${baksos[i].nama}','${baksos[i].harga}','${
+                  baksos[i].qty
+                }')">Edit</button>
+                  <button type="button" class="btn btn-danger" onclick="deleteData(${
+                    baksos[i].id
+                  })">Delete</button>
+                </td>
+
+              </tr>
+              `;
+              }
+              document.getElementById("result").innerHTML = bucket;
+            });
+        };
+        getData();
+      </script>
+    </div>
+  </body>
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+    crossorigin="anonymous"
+  ></script>
+</html>
